@@ -39,13 +39,15 @@ public:
 	
 	std::tuple<int, int, double> GetBusInfo(std::string_view bus_name);
 	
+	std::set<std::string_view> GetStopInfo(std::string_view stop_name);
+	
 
 private:
 	std::deque<Stop> stops_;
 	std::unordered_map<std::string_view, Stop*> stopname_to_stop_;
 	std::deque<Bus> buses_;
 	std::unordered_map<std::string_view, Bus*> busname_to_bus_;
-	std::unordered_map<std::string_view, Stop*> stopname_to_bus_;
+	std::unordered_map<Stop*, std::set<std::string_view>> busnames_to_stop_;
 };
 
 }

@@ -9,17 +9,17 @@ void TransportCatalogue::AddStop(const std::string& stop_name, const double x, c
 }
 	
 TransportCatalogue::Stop* TransportCatalogue::FindStop(std::string_view stop_name) {
-	return stopname_to_stop_.at(stop_name);
+	return stopname_to_stop_.count(stop_name) ? stopname_to_stop_.at(stop_name) : nullptr;
 }
 
 void TransportCatalogue::AddBus(const std::string& bus_name, const std::vector<std::string>& bus_stops) {
-	std::vector<Stop*> pointers_to_stops;
-	for (const std::string& stop : bus_stops) {
-		pointers_to_stops.push_back(stopname_to_stop_[stop]);
-		stopname_to_bus_[bus_name]
-	}
-	Bus bus{bus_name, std::move(pointers_to_stops)};
+	Bus bus{bus_name, {}};
 	auto it = buses_.emplace(buses_.end(), std::move(bus));
+	for (const std::string& stop : bus_stops) {
+		auto stop_point = stopname_to_stop_[stop];
+		it->stops.push_back(stop_point);
+		busnames_to_stop_[stop_point].insert(it->name);
+	}
 	busname_to_bus_.emplace(it->name, &*it);
 }
 
@@ -40,6 +40,14 @@ std::tuple<int, int, double> TransportCatalogue::GetBusInfo(std::string_view bus
 		route_lenght += ComputeDistance({bus_stops[i]->x, bus_stops[i]->y}, {bus_stops[i+1]->x, bus_stops[i+1]->y});
 	};
 	return std::tuple(stops_count, unique_stops_count, route_lenght);
+}
+
+std::set<std::string_view> TransportCatalogue::GetStopInfo(std::string_view stop_name){
+	auto stop_point = FindStop(stop_name);
+	if (!busnames_to_stop_.count(stop_point)) {
+		return {};
+	}
+	return busnames_to_stop_.at(stop_point);
 }
 	
 }
