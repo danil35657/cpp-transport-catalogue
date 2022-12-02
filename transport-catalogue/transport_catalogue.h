@@ -48,6 +48,7 @@ private:
 	std::deque<Bus> buses_;
 	std::unordered_map<std::string_view, Bus*> busname_to_bus_;
 	std::unordered_map<Stop*, std::set<std::string_view>> busnames_to_stop_;
+	std::unordered_map<std::pair<Stop*, Stop*>, double> distances_;
 };
 
 }
