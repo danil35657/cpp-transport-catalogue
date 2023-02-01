@@ -37,6 +37,10 @@ public:
 	struct Bus {
 		std::string name;
 		std::vector<Stop*> stops;
+		double route_lenght = 0.0;
+		double curvature = 0.0;
+		int stops_count = 0.0;
+		int unique_stops_count = 0.0;
 	};
 
 	void AddStop(const std::string& stop_name, const double x, const double y);

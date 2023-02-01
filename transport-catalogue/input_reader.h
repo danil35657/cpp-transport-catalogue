@@ -16,6 +16,6 @@ void ReadStop(transport_catalogue::TransportCatalogue& catalogue, std::string& s
 
 void ReadBus(transport_catalogue::TransportCatalogue& catalogue, std::string& bus);
 
-void ReadInput(transport_catalogue::TransportCatalogue& catalogue);
+void ReadInput(transport_catalogue::TransportCatalogue& catalogue, std::istream& in);
 
 }

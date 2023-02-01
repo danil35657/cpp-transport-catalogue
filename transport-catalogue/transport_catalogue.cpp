@@ -21,6 +21,16 @@ void TransportCatalogue::AddBus(const std::string& bus_name, const std::vector<s
 		busnames_to_stop_[stop_point].insert(it->name);
 	}
 	busname_to_bus_.emplace(it->name, &*it);
+	const auto& stops_points = it->stops;
+	std::set<Stop*> unique(stops_points.begin(), stops_points.end());
+	it->stops_count = stops_points.size();
+	it->unique_stops_count = unique.size();
+	double geographical_distance = 0.0;
+	for (int i = 0; i < stops_points.size() - 1; ++i) {
+		geographical_distance += ComputeDistance({stops_points[i]->x, stops_points[i]->y}, {stops_points[i+1]->x, stops_points[i+1]->y});
+		it->route_lenght += GetDistance(std::make_pair(stops_points[i], stops_points[i+1]));
+	};
+	it->curvature = it->route_lenght/geographical_distance;
 }
 
 TransportCatalogue::Bus* TransportCatalogue::FindBus(std::string_view bus_name) {
@@ -28,21 +38,8 @@ TransportCatalogue::Bus* TransportCatalogue::FindBus(std::string_view bus_name) 
 }
 
 std::tuple<int, int, double, double> TransportCatalogue::GetBusInfo(std::string_view bus_name) {
-	if (!busname_to_bus_.count(bus_name)) {
-		return std::tuple(0, 0, 0.0, 0.0);
-	}
-	const auto& bus_stops = busname_to_bus_[bus_name]->stops;
-	int stops_count = bus_stops.size();
-	std::set<Stop*> unique(bus_stops.begin(), bus_stops.end());
-	int unique_stops_count = unique.size();
-	double route_lenght = 0.0;
-	double geographical_distance = 0.0;
-	for (int i = 0; i < stops_count - 1; ++i) {
-		geographical_distance += ComputeDistance({bus_stops[i]->x, bus_stops[i]->y}, {bus_stops[i+1]->x, bus_stops[i+1]->y});
-		route_lenght += GetDistance(std::make_pair(bus_stops[i], bus_stops[i+1]));
-	};
-	double curvature = route_lenght/geographical_distance;
-	return std::tuple(stops_count, unique_stops_count, route_lenght, curvature);
+	const auto it = busname_to_bus_.find(bus_name);
+	return it == busname_to_bus_.end() ? std::tuple(0, 0, 0.0, 0.0) : std::tuple(it->second->stops_count, it->second->unique_stops_count, it->second->route_lenght, it->second->curvature);
 }
 
 std::set<std::string_view> TransportCatalogue::GetStopInfo(std::string_view stop_name){

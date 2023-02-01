@@ -57,22 +57,22 @@ void ReadBus(transport_catalogue::TransportCatalogue& catalogue, std::string& bu
 	catalogue.AddBus(name, stops);
 }
 
-void ReadInput(transport_catalogue::TransportCatalogue& catalogue) {
+void ReadInput(transport_catalogue::TransportCatalogue& catalogue, std::istream& in) {
 	int queries_count;;
-	std::cin >> queries_count;
+	in >> queries_count;
 	std::string query;
 	std::vector<std::string> buses;
 	std::deque<std::pair<std::pair<std::string, std::string>, int>> distances;
-	std::getline(std::cin, query); // очистить строку
+	std::getline(in, query); // очистить строку
 	for (int i = 0; i < queries_count; ++i) {
-		std::getline(std::cin, query);
+		std::getline(in, query);
 		query[0] == 'S' ? ReadStop(catalogue, query, distances) : buses.push_back(std::move(query));
-	};
-	for (int i = 0; i < buses.size(); ++i) {
-		ReadBus(catalogue, buses[i]);
 	};
 	for (const auto& distance : distances) {
 		catalogue.AddDistance(distance);
+	};
+	for (int i = 0; i < buses.size(); ++i) {
+		ReadBus(catalogue, buses[i]);
 	};
 }
 

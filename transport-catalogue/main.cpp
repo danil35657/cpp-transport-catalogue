@@ -7,6 +7,6 @@
 
 int main() {
 	transport_catalogue::TransportCatalogue catalogue;
-	input_reader::ReadInput(catalogue);
-	stat_reader::ReadStat(catalogue);
+	input_reader::ReadInput(catalogue, std::cin);
+	stat_reader::ReadStat(catalogue, std::cin);
 }
