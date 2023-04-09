@@ -27,14 +27,14 @@ void TransportCatalogue::AddBus(const std::string& bus_name, const std::vector<s
 	it->unique_stops_count = unique.size();
 	double geographical_distance = 0.0;
 	for (int i = 0; i < stops_points.size() - 1; ++i) {
-		geographical_distance += ComputeDistance({stops_points[i]->x, stops_points[i]->y}, {stops_points[i+1]->x, stops_points[i+1]->y});
+		geographical_distance += geo::ComputeDistance({stops_points[i]->x, stops_points[i]->y}, {stops_points[i+1]->x, stops_points[i+1]->y});
 		it->route_lenght += GetDistance(std::make_pair(stops_points[i], stops_points[i+1]));
 	};
 	it->curvature = it->route_lenght/geographical_distance;
 }
 
 TransportCatalogue::Bus* TransportCatalogue::FindBus(std::string_view bus_name) {
-	return busname_to_bus_.at(bus_name);
+	return busname_to_bus_.count(bus_name) ? busname_to_bus_.at(bus_name) : nullptr;
 }
 
 std::tuple<int, int, double, double> TransportCatalogue::GetBusInfo(std::string_view bus_name) {
