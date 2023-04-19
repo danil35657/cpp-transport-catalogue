@@ -23,52 +23,52 @@ public:
 class Node {
 public:
     using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-	
-	Node() = default;
+    
+    Node() = default;
 
     Node(Value value);
-	
-	Node(std::nullptr_t);
-	
-	Node(bool val);
-	
-	Node(int val); 
-	
-	Node(double val);
-	
-	Node(std::string str);
-	
-	Node(Array arr);
-	
-	Node(Dict dic);
-	
-	bool IsInt() const;
-	
-	bool IsDouble() const; 
-	
-	bool IsPureDouble() const;
-	
-	bool IsBool() const;
-	
-	bool IsString() const;
-	
-	bool IsNull() const;
-	
-	bool IsArray() const;
-	
-	bool IsMap() const;
-	
-	int AsInt() const;
-	
-	bool AsBool() const;
-	
-	double AsDouble() const;
-	
-	const std::string& AsString() const;
-	
-	const Array& AsArray() const;
-	
-	const Dict& AsMap() const;
+    
+    Node(std::nullptr_t);
+    
+    Node(bool val);
+    
+    Node(int val); 
+    
+    Node(double val);
+    
+    Node(std::string str);
+    
+    Node(Array arr);
+    
+    Node(Dict dic);
+    
+    bool IsInt() const;
+    
+    bool IsDouble() const; 
+    
+    bool IsPureDouble() const;
+    
+    bool IsBool() const;
+    
+    bool IsString() const;
+    
+    bool IsNull() const;
+    
+    bool IsArray() const;
+    
+    bool IsMap() const;
+    
+    int AsInt() const;
+    
+    bool AsBool() const;
+    
+    double AsDouble() const;
+    
+    const std::string& AsString() const;
+    
+    const Array& AsArray() const;
+    
+    const Dict& AsMap() const;
 
     const Value& GetValue() const;
 
