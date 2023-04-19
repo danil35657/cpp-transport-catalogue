@@ -15,19 +15,27 @@ using namespace std::literals;
 namespace json_reader {
     
 using namespace json;
+
+class JsonReader {
+
+public:
     
-void GetStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out);
+void ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, std::istream& in, std::ostream& out);
 
-void GetBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out);
+private:
 
-void GetMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out);
+void PrintStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out);
+
+void PrintBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out);
+
+void PrintMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out);
 
 void ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out);
 
 void ReadBase(transport_catalogue::TransportCatalogue& catalogue, const Array& base);
 
 void ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict& settings);
-    
-void ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, std::istream& in, std::ostream& out);
+
+};
 
 }

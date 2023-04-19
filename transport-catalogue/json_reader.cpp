@@ -4,7 +4,7 @@ namespace json_reader {
     
 using namespace json;
 
-void GetStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
+void JsonReader::PrintStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
     std::string name = dic.at("name"s).AsString();
     if (!catalogue.FindStop(name)) {
         Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"error_message"s, "not found"s}}}}, out);
@@ -17,7 +17,7 @@ void GetStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic
     Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"buses"s, buses}}}}, out);
 }
 
-void GetBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
+void JsonReader::PrintBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
     std::string name = dic.at("name"s).AsString();
     if (!catalogue.FindBus(name)) {
         Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"error_message"s, "not found"s}}}}, out);
@@ -27,23 +27,23 @@ void GetBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic,
     Print(Document{Node{Dict{{"curvature"s, std::get<3>(info)}, {"request_id"s, dic.at("id"s).AsInt()}, {"route_length"s, std::get<2>(info)}, {"stop_count"s, std::get<0>(info)}, {"unique_stop_count"s, std::get<1>(info)}}}}, out);
 }
 
-void GetMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out) {
+void JsonReader::PrintMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out) {
     Print(Document{Node{Dict{{"map"s, renderer.GetMap(catalogue)}, {"request_id"s, dic.at("id"s).AsInt()}}}}, out);
 }
 
-void ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out) {
+void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out) {
     out << '[';
     if (stat.size() > 0) {
         out << std::endl;
         const Dict& dic = stat[0].AsMap();
         if (dic.at("type"s).AsString() == "Stop"s) {
-            GetStop(catalogue, dic, out);
+            PrintStop(catalogue, dic, out);
         }
         if (dic.at("type"s).AsString() == "Bus"s) {
-            GetBus(catalogue, dic, out);
+            PrintBus(catalogue, dic, out);
         }
         if (dic.at("type"s).AsString() == "Map"s) {
-            GetMap(catalogue, renderer, dic, out);
+            PrintMap(catalogue, renderer, dic, out);
         } 
     }
     if (stat.size() > 1) {
@@ -51,13 +51,13 @@ void ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::
             out << ',' << std::endl;
             const Dict& dic = stat[i].AsMap();
             if (dic.at("type"s).AsString() == "Stop"s) {
-                GetStop(catalogue, dic, out);
+                PrintStop(catalogue, dic, out);
             }
             if (dic.at("type"s).AsString() == "Bus"s) {
-                GetBus(catalogue, dic, out);
+                PrintBus(catalogue, dic, out);
             }
             if (dic.at("type"s).AsString() == "Map"s) {
-                GetMap(catalogue, renderer, dic, out);
+                PrintMap(catalogue, renderer, dic, out);
             } 
         }
         out << std::endl;
@@ -65,7 +65,7 @@ void ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::
     out << ']' << std::endl;
 }
 
-void ReadBase(transport_catalogue::TransportCatalogue& catalogue, const Array& base) {
+void JsonReader::ReadBase(transport_catalogue::TransportCatalogue& catalogue, const Array& base) {
     std::deque<std::pair<std::pair<std::string, std::string>, int>> distances;
     for (const auto& a : base) {
         const Dict& dic = a.AsMap();
@@ -97,7 +97,7 @@ void ReadBase(transport_catalogue::TransportCatalogue& catalogue, const Array& b
     }
 }
 
-void ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict& settings) {
+void JsonReader::ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict& settings) {
     Array temp = settings.at("bus_label_offset"s).AsArray();
     const svg::Point bus_label_offset(temp[0].AsDouble(), temp[1].AsDouble());
     temp = settings.at("stop_label_offset"s).AsArray();
@@ -132,7 +132,7 @@ void ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict& settings) 
     renderer.SetSettings(renderer_settings);
 }
     
-void ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, std::istream& in, std::ostream& out) {
+void JsonReader::ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, std::istream& in, std::ostream& out) {
     const auto input = Load(in).GetRoot().AsMap();
     ReadBase(catalogue, input.at("base_requests"s).AsArray());
     ReadMapSettings(renderer, input.at("render_settings"s).AsMap());

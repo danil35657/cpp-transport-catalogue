@@ -20,20 +20,8 @@ void MapRenderer::SetSettings(const MapRendererSettings& settings) {
     settings_ = settings;
 }
 
-std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalogue) {
-    svg::Document route_map;
-    const auto buses = catalogue.GetAllBuses();
-    const auto stops = catalogue.GetAllStops();
-    std::vector<geo::Coordinates> coordinates;
-    coordinates.reserve(stops.size());
-    for(const auto& stop : stops) {
-        if (catalogue.GetStopInfo(stop.first).size() > 0) {
-            coordinates.push_back({stop.second->x, stop.second->y});
-        }
-    }
-    const SphereProjector proj{coordinates.begin(), coordinates.end(), settings_.width_, settings_.height_, settings_.padding_};
+void MapRenderer::GetBusRoutes(svg::Document& route_map, size_t max_color_number, std::map<std::string_view, transport_catalogue::TransportCatalogue::Bus*>& buses, SphereProjector& proj) {
     size_t color_number = 0u;
-    size_t max_color_number = settings_.color_palette_.size() - 1;
     for (const auto& bus : buses) {
         const auto& bus_stops = bus.second->stops;
         if (bus_stops.size() > 0) {
@@ -46,7 +34,10 @@ std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalog
             color_number == max_color_number ? color_number = 0u : ++color_number;
         }
     }
-    color_number = 0u;
+}
+
+void MapRenderer::GetBusNames(svg::Document& route_map, size_t max_color_number, std::map<std::string_view, transport_catalogue::TransportCatalogue::Bus*>& buses, SphereProjector& proj) {
+    size_t color_number = 0u;
     for (const auto& bus : buses) {
         const auto& bus_stops = bus.second->stops;
         if (bus_stops.size() > 0) {
@@ -61,11 +52,17 @@ std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalog
             color_number == max_color_number ? color_number = 0u : ++color_number;
         }
     }
+}
+
+void MapRenderer::GetStopLabels(svg::Document& route_map, transport_catalogue::TransportCatalogue& catalogue, std::map<std::string_view, transport_catalogue::TransportCatalogue::Stop*>& stops, SphereProjector& proj) {
     for (const auto& stop : stops) {
         if (catalogue.GetStopInfo(stop.first).size() > 0) {
             route_map.AddPtr(std::make_unique<svg::Circle>(std::move(svg::Circle().SetCenter(proj({stop.second->x, stop.second->y})).SetRadius(settings_.stop_radius_).SetFillColor("white"s))));
         }
     }
+}
+
+void MapRenderer::GetStopNames(svg::Document& route_map, transport_catalogue::TransportCatalogue& catalogue, std::map<std::string_view, transport_catalogue::TransportCatalogue::Stop*>& stops, SphereProjector& proj) {
     for (const auto& stop : stops) {
         if (catalogue.GetStopInfo(stop.first).size() > 0) {
             svg::Text base_text = svg::Text().SetFontFamily("Verdana"s).SetFontSize(settings_.stop_label_font_size_).SetPosition(proj({stop.second->x, stop.second->y})).SetOffset(settings_.stop_label_offset_).SetData(stop.second->name);
@@ -73,6 +70,25 @@ std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalog
             route_map.AddPtr(std::make_unique<svg::Text>(std::move(svg::Text{base_text}.SetFillColor("black"s))));
         }
     }
+}
+
+std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalogue) {
+    svg::Document route_map;
+    auto buses = catalogue.GetAllBuses();
+    auto stops = catalogue.GetAllStops();
+    std::vector<geo::Coordinates> coordinates;
+    coordinates.reserve(stops.size());
+    for(const auto& stop : stops) {
+        if (catalogue.GetStopInfo(stop.first).size() > 0) {
+            coordinates.push_back({stop.second->x, stop.second->y});
+        }
+    }
+    SphereProjector proj{coordinates.begin(), coordinates.end(), settings_.width_, settings_.height_, settings_.padding_};
+    size_t max_color_number = settings_.color_palette_.size() - 1;
+    GetBusRoutes(route_map, max_color_number, buses, proj);
+    GetBusNames(route_map, max_color_number, buses, proj);
+    GetStopLabels(route_map, catalogue, stops, proj);
+    GetStopNames(route_map, catalogue, stops, proj);
     std::stringstream out;
     route_map.Render(out);
     std::string result;

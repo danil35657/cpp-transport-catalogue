@@ -116,6 +116,15 @@ public:
     std::string GetMap(transport_catalogue::TransportCatalogue& catalogue);
     
 private:
+    
+    void GetBusRoutes(svg::Document& route_map, size_t max_color_number, std::map<std::string_view, transport_catalogue::TransportCatalogue::Bus*>& buses, SphereProjector& proj);
+
+    void GetBusNames(svg::Document& route_map, size_t max_color_number, std::map<std::string_view, transport_catalogue::TransportCatalogue::Bus*>& buses, SphereProjector& proj);
+
+    void GetStopLabels(svg::Document& route_map, transport_catalogue::TransportCatalogue& catalogue, std::map<std::string_view, transport_catalogue::TransportCatalogue::Stop*>& stops, SphereProjector& proj);
+
+    void GetStopNames(svg::Document& route_map, transport_catalogue::TransportCatalogue& catalogue, std::map<std::string_view, transport_catalogue::TransportCatalogue::Stop*>& stops, SphereProjector& proj);
+
     MapRendererSettings settings_;
 };
 

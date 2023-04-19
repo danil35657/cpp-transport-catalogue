@@ -8,5 +8,6 @@
 int main() {
     transport_catalogue::TransportCatalogue catalogue;
     map_renderer::MapRenderer renderer;
-    json_reader::ReadInput(catalogue, renderer, std::cin, std::cout);
+    json_reader::JsonReader reader;
+    reader.ReadInput(catalogue, renderer, std::cin, std::cout);
 }
