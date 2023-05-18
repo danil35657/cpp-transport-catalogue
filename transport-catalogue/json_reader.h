@@ -9,6 +9,7 @@
 #include "transport_catalogue.h"
 #include "json.h"
 #include "map_renderer.h"
+#include "json_builder.h"
 
 using namespace std::literals;
 

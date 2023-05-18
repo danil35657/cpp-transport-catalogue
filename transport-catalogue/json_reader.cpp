@@ -7,28 +7,28 @@ using namespace json;
 void JsonReader::PrintStop(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
     std::string name = dic.at("name"s).AsString();
     if (!catalogue.FindStop(name)) {
-        Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"error_message"s, "not found"s}}}}, out);
+        Print(Document{Builder{}.StartDict().Key("request_id"s).Value(dic.at("id"s).AsInt()).Key("error_message"s).Value("not found"s).EndDict().Build()}, out);
         return;
     }
     Array buses;
     for (const auto a : catalogue.GetStopInfo(name)) {
         buses.push_back(Node{std::string{a}});
     }
-    Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"buses"s, buses}}}}, out);
+    Print(Document{Builder{}.StartDict().Key("request_id"s).Value(dic.at("id"s).AsInt()).Key("buses"s).Value(buses).EndDict().Build()}, out);
 }
 
 void JsonReader::PrintBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
     std::string name = dic.at("name"s).AsString();
     if (!catalogue.FindBus(name)) {
-        Print(Document{Node{Dict{{"request_id"s, dic.at("id"s).AsInt()}, {"error_message"s, "not found"s}}}}, out);
+        Print(Document{Builder{}.StartDict().Key("request_id"s).Value(dic.at("id"s).AsInt()).Key("error_message"s).Value("not found"s).EndDict().Build()}, out);
         return;
     }
     auto info = catalogue.GetBusInfo(name);
-    Print(Document{Node{Dict{{"curvature"s, std::get<3>(info)}, {"request_id"s, dic.at("id"s).AsInt()}, {"route_length"s, std::get<2>(info)}, {"stop_count"s, std::get<0>(info)}, {"unique_stop_count"s, std::get<1>(info)}}}}, out);
+    Print(Document{Builder{}.StartDict().Key("curvature"s).Value(std::get<3>(info)).Key("request_id"s).Value(dic.at("id"s).AsInt()).Key("route_length"s).Value(std::get<2>(info)).Key("stop_count"s).Value(std::get<0>(info)).Key("unique_stop_count"s).Value(std::get<1>(info)).EndDict().Build()}, out);
 }
 
 void JsonReader::PrintMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out) {
-    Print(Document{Node{Dict{{"map"s, renderer.GetMap(catalogue)}, {"request_id"s, dic.at("id"s).AsInt()}}}}, out);
+    Print(Document{Builder{}.StartDict().Key("map"s).Value(renderer.GetMap(catalogue)).Key("request_id"s).Value(dic.at("id"s).AsInt()).EndDict().Build()}, out);
 }
 
 void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out) {
