@@ -10,6 +10,9 @@
 #include "json.h"
 #include "map_renderer.h"
 #include "json_builder.h"
+#include "graph.h"
+#include "router.h"
+#include "transport_router.h"
 
 using namespace std::literals;
 
@@ -31,11 +34,15 @@ void PrintBus(transport_catalogue::TransportCatalogue& catalogue, const Dict& di
 
 void PrintMap(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Dict& dic, std::ostream& out);
 
+void PrintRoute(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out);
+
 void ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out);
 
 void ReadBase(transport_catalogue::TransportCatalogue& catalogue, const Array& base);
 
 void ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict& settings);
+
+void SetRouter(transport_catalogue::TransportCatalogue& catalogue, const Dict& settings);
 
 };
 

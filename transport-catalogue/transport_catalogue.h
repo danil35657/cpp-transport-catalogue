@@ -11,8 +11,11 @@
 #include <iostream>
 #include <utility>
 #include <map>
+#include <memory>
 
 #include "geo.h"
+#include "router.h"
+#include "transport_router.h"
 
 namespace transport_catalogue {
 
@@ -65,6 +68,12 @@ public:
     
     std::map<std::string_view, Bus*> GetAllBuses();
 
+    void SetRouter(graph::DirectedWeightedGraph<RouteWeight>&& graph_, std::unordered_map<std::string_view, size_t>&& stops_id);
+
+    std::optional<graph::Router<RouteWeight>::RouteInfo> GetRoute(const std::string_view from, const std::string_view to);
+
+    const RouteWeight& GetStep(size_t id);
+
 private:
     std::deque<Stop> stops_;
     std::unordered_map<std::string_view, Stop*> stopname_to_stop_;
@@ -72,6 +81,9 @@ private:
     std::unordered_map<std::string_view, Bus*> busname_to_bus_;
     std::unordered_map<Stop*, std::set<std::string_view>> busnames_to_stop_;
     std::unordered_map<std::pair<Stop*, Stop*>, double, PairStopPointHasher> distances_;
+    std::unique_ptr<graph::Router<RouteWeight>> router_;
+    graph::DirectedWeightedGraph<RouteWeight> graph_;
+    std::unordered_map<std::string_view, size_t> stops_id_;
 };
 
 }

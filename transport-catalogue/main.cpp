@@ -4,6 +4,7 @@
 #include "transport_catalogue.h"
 #include "geo.h"
 #include "map_renderer.h"
+#include <iostream>
 
 int main() {
     transport_catalogue::TransportCatalogue catalogue;
