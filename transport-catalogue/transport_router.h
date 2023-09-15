@@ -1,16 +1,44 @@
 #pragma once
 
 #include <string_view>
+#include <memory>
+#include <optional>
 
-struct RouteWeight {
-    std::string_view name;
-    size_t span_count = 0;
-    double time = 0.0;
-    bool is_bus = true;
+#include "transport_catalogue.h"
+#include "router.h"
+#include "graph.h"
 
-    bool operator<(const RouteWeight& right) const;
+namespace transport_router {
 
-    bool operator>(const RouteWeight& right) const;
-};
+    struct RouteWeight {
+        std::string_view name;
+        size_t span_count = 0;
+        double time = 0.0;
+        bool is_bus = true;
 
-RouteWeight operator+(const RouteWeight& left, const RouteWeight& right);
+        bool operator<(const RouteWeight& right) const;
+
+        bool operator>(const RouteWeight& right) const;
+    };
+
+    RouteWeight operator+(const RouteWeight& left, const RouteWeight& right);
+
+    class TransportRouter {
+
+    public:
+
+        TransportRouter() = default;
+
+        void SetRouter(transport_catalogue::TransportCatalogue& catalogue, double bus_wait_time, double bus_velocity);
+
+        std::optional<graph::Router<RouteWeight>::RouteInfo> GetRoute(const std::string_view from, const std::string_view to);
+
+        const RouteWeight& GetStep(size_t id);
+
+    private:
+        std::unique_ptr<graph::Router<RouteWeight>> router_;
+        graph::DirectedWeightedGraph<RouteWeight> graph_;
+        std::unordered_map<std::string_view, size_t> stops_id_;
+    };
+
+}

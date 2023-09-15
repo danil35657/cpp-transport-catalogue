@@ -4,11 +4,13 @@
 #include "transport_catalogue.h"
 #include "geo.h"
 #include "map_renderer.h"
-#include <iostream>
+#include "transport_router.h"
+
 
 int main() {
     transport_catalogue::TransportCatalogue catalogue;
     map_renderer::MapRenderer renderer;
     json_reader::JsonReader reader;
-    reader.ReadInput(catalogue, renderer, std::cin, std::cout);
+    transport_router::TransportRouter router;
+    reader.ReadInput(catalogue, renderer, router, std::cin, std::cout);
 }

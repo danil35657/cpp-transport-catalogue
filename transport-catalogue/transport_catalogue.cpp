@@ -66,20 +66,6 @@ std::map<std::string_view, TransportCatalogue::Bus*> TransportCatalogue::GetAllB
     return std::map(busname_to_bus_.begin(), busname_to_bus_.end());
 }
 
-void TransportCatalogue::SetRouter(graph::DirectedWeightedGraph<RouteWeight>&& graph, std::unordered_map<std::string_view, size_t>&& stops_id) {
-    graph_ = graph;
-    stops_id_ = stops_id;
-    router_ = std::make_unique<graph::Router<RouteWeight>>(graph_);
-}
-
-std::optional<graph::Router<RouteWeight>::RouteInfo> TransportCatalogue::GetRoute(const std::string_view from, const std::string_view to) {
-    return router_->BuildRoute(stops_id_.at(from), stops_id_.at(to));
-}
-
-const RouteWeight& TransportCatalogue::GetStep(size_t id) {
-    return graph_.GetEdge(id).weight;
-}
-
 }
 
 

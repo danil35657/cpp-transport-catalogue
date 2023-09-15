@@ -32,9 +32,9 @@ void JsonReader::PrintMap(transport_catalogue::TransportCatalogue& catalogue, ma
     Print(Document{Builder{}.StartDict().Key("map"s).Value(renderer.GetMap(catalogue)).Key("request_id"s).Value(dic.at("id"s).AsInt()).EndDict().Build()}, out);
 }
 
-void JsonReader::PrintRoute(transport_catalogue::TransportCatalogue& catalogue, const Dict& dic, std::ostream& out) {
+void JsonReader::PrintRoute(transport_router::TransportRouter& router, const Dict& dic, std::ostream& out) {
     
-    auto route = catalogue.GetRoute(dic.at("from"s).AsString(), dic.at("to"s).AsString());
+    auto route = router.GetRoute(dic.at("from"s).AsString(), dic.at("to"s).AsString());
     
     if (route == std::nullopt) {
         Print(Document{ Builder{}.StartDict().Key("request_id"s).Value(dic.at("id"s).AsInt()).Key("error_message"s).Value("not found"s).EndDict().Build() }, out);
@@ -44,7 +44,7 @@ void JsonReader::PrintRoute(transport_catalogue::TransportCatalogue& catalogue, 
     Array steps;
 
     for (const size_t step : route->edges) {
-        RouteWeight weight = catalogue.GetStep(step);
+        transport_router::RouteWeight weight = router.GetStep(step);
         if (weight.is_bus) {
             steps.push_back(Node(Dict{ {"type"s, Node("Bus"s)}, {"bus"s, Node(std::string(weight.name))}, {"span_count"s, Node(int(weight.span_count))}, {"tyme"s, Node(weight.time)} }));
         }
@@ -57,7 +57,7 @@ void JsonReader::PrintRoute(transport_catalogue::TransportCatalogue& catalogue, 
 
 }
 
-void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out) {
+void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, transport_router::TransportRouter& router, map_renderer::MapRenderer& renderer, const Array& stat, std::ostream& out) {
     out << '[';
     if (stat.size() > 0) {
         out << std::endl;
@@ -72,7 +72,7 @@ void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, ma
             PrintMap(catalogue, renderer, dic, out);
         }
         if (dic.at("type"s).AsString() == "Route"s) {
-            PrintRoute(catalogue, dic, out);
+            PrintRoute(router, dic, out);
         }
     }
     if (stat.size() > 1) {
@@ -89,7 +89,7 @@ void JsonReader::ReadStat(transport_catalogue::TransportCatalogue& catalogue, ma
                 PrintMap(catalogue, renderer, dic, out);
             }
             if (dic.at("type"s).AsString() == "Route"s) {
-                PrintRoute(catalogue, dic, out);
+                PrintRoute(router, dic, out);
             }
         }
         out << std::endl;
@@ -164,55 +164,18 @@ void JsonReader::ReadMapSettings(map_renderer::MapRenderer& renderer, const Dict
     renderer.SetSettings(renderer_settings);
 }
 
-void JsonReader::SetRouter(transport_catalogue::TransportCatalogue& catalogue, const Dict& settings) {
+void JsonReader::ReadRouterSettings(transport_catalogue::TransportCatalogue& catalogue, transport_router::TransportRouter& router, const Dict& settings) {
     const double bus_wait_time = settings.at("bus_wait_time"s).AsDouble();
     const double bus_velocity = settings.at("bus_velocity"s).AsDouble();
-
-    size_t index = 0;
-
-    std::unordered_map<std::string_view, size_t> stops_id;
-
-    const auto stops = catalogue.GetAllStops();
-
-    graph::DirectedWeightedGraph<RouteWeight> transport_graph(stops.size() * 2);
-
-    for (const auto& stop : stops) {
-        stops_id[stop.first] = index;
-        transport_graph.AddEdge({ index, index + 1, { stop.first, 0, bus_wait_time, false }});
-        index += 2;
-    }
-
-    size_t stops_count = 0;
-
-    for (const auto& bus : catalogue.GetAllBuses()) {
-        const auto& bus_stops = bus.second->stops;
-        stops_count = bus.second->is_roundtrip == false ? bus_stops.size() / 2 : bus_stops.size() - 1;
-        for (size_t i = 0; i < stops_count; i++) {
-            double time = 0.0;
-            for (size_t j = i + 1; j <= stops_count; j++) {
-                time += ((catalogue.GetDistance({ bus_stops[j - 1], bus_stops[j] }) * 0.001 / bus_velocity) * 60);
-                transport_graph.AddEdge({ stops_id[bus_stops[i]->name] + 1, stops_id[bus_stops[j]->name], { bus.first, j - i, time, true} });
-            }
-        }
-        if (bus.second->is_roundtrip == false) {
-            for (size_t i = stops_count; i < bus_stops.size() - 1;  i++) {
-                double time = 0.0;
-                for (size_t j = i + 1; j < bus_stops.size();  j++) {
-                    time += ((catalogue.GetDistance({ bus_stops[j - 1], bus_stops[j] }) * 0.001 / bus_velocity) * 60);
-                    transport_graph.AddEdge({ stops_id[bus_stops[i]->name] + 1, stops_id[bus_stops[j]->name], { bus.first, j - i, time, true} });
-                }
-            }
-        }
-    }
-    catalogue.SetRouter(std::move(transport_graph), std::move(stops_id));
+    router.SetRouter(catalogue, bus_wait_time, bus_velocity);
 }
     
-void JsonReader::ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, std::istream& in, std::ostream& out) {
+void JsonReader::ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router, std::istream& in, std::ostream& out) {
     const auto input = Load(in).GetRoot().AsMap();
     ReadBase(catalogue, input.at("base_requests"s).AsArray());
     ReadMapSettings(renderer, input.at("render_settings"s).AsMap());
-    SetRouter(catalogue, input.at("routing_settings"s).AsMap());
-    ReadStat(catalogue, renderer, input.at("stat_requests"s).AsArray(), out);
+    ReadRouterSettings(catalogue, router, input.at("routing_settings"s).AsMap());
+    ReadStat(catalogue, router, renderer, input.at("stat_requests"s).AsArray(), out);
 }
 
 }
