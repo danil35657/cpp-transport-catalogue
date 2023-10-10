@@ -101,6 +101,10 @@ std::string MapRenderer::GetMap(transport_catalogue::TransportCatalogue& catalog
     }
     return result;
 }
+
+const MapRendererSettings& MapRenderer::GetSettings() {
+    return settings_;
+}
     
 
 }

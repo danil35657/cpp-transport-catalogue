@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package proto;
+
+import "map_renderer.proto";
+import "graph.proto";
+
+message Stop {
+    string name = 1;
+    double x = 2;
+    double y = 3;
+}   
+
+message Bus {
+    string name = 1;
+    repeated uint32 stop = 2;
+    bool is_roundtrip = 3;
+}
+
+message Distance {
+    uint32 stop_from = 1;
+    uint32 stop_to = 2;
+    double length = 3;
+}
+
+
+message TransportCatalogue{
+    repeated Bus bus = 1;
+    repeated Stop stop = 2;
+    repeated Distance distance = 3;
+    MapRendererSettings map_settings = 4;
+    Graph graph = 5;
+}

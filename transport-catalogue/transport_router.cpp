@@ -64,5 +64,22 @@ namespace transport_router {
     const RouteWeight& TransportRouter::GetStep(size_t id) {
         return graph_.GetEdge(id).weight;
     }
+    
+    graph::DirectedWeightedGraph<RouteWeight>& TransportRouter::GetGraph() {
+        return graph_;
+    }
+
+    void TransportRouter::SetGraph(transport_catalogue::TransportCatalogue& catalogue, graph::DirectedWeightedGraph<RouteWeight>&& graph) {
+        
+        graph_ = std::move(graph);
+        router_ = std::make_unique<graph::Router<RouteWeight>>(graph_);
+        
+        size_t id = 0;
+        
+        for (auto stop : catalogue.GetAllStops()) {
+            stops_id_[stop.first] = id;
+            id += 2;
+        }
+    }
 
 }

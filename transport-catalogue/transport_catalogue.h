@@ -64,6 +64,8 @@ public:
     std::map<std::string_view, Stop*> GetAllStops();
     
     std::map<std::string_view, Bus*> GetAllBuses();
+    
+    std::unordered_map<std::pair<Stop*, Stop*>, double, PairStopPointHasher>& GetAllDistances();
 
 private:
     std::deque<Stop> stops_;
@@ -72,7 +74,6 @@ private:
     std::unordered_map<std::string_view, Bus*> busname_to_bus_;
     std::unordered_map<Stop*, std::set<std::string_view>> busnames_to_stop_;
     std::unordered_map<std::pair<Stop*, Stop*>, double, PairStopPointHasher> distances_;
-
 };
 
 }

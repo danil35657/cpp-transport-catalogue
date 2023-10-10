@@ -178,4 +178,18 @@ void JsonReader::ReadInput(transport_catalogue::TransportCatalogue& catalogue, m
     ReadStat(catalogue, router, renderer, input.at("stat_requests"s).AsArray(), out);
 }
 
+void JsonReader::ReadInputBase(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router, std::istream& in) {
+    const auto input = Load(in).GetRoot().AsMap();
+    ReadBase(catalogue, input.at("base_requests"s).AsArray());
+    ReadMapSettings(renderer, input.at("render_settings"s).AsMap());
+    ReadRouterSettings(catalogue, router, input.at("routing_settings"s).AsMap());
+    serialization::Serialize(catalogue, renderer, router, input.at("serialization_settings"s).AsMap().at("file"s).AsString());
+}
+
+void JsonReader::ReadInputStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router, std::istream& in, std::ostream& out) {
+    const auto input = Load(in).GetRoot().AsMap();
+    serialization::Deserialize(catalogue, renderer, router, input.at("serialization_settings"s).AsMap().at("file"s).AsString());
+    ReadStat(catalogue, router, renderer, input.at("stat_requests"s).AsArray(), out);
+}
+
 }

@@ -115,6 +115,8 @@ public:
     
     std::string GetMap(transport_catalogue::TransportCatalogue& catalogue);
     
+    const MapRendererSettings& GetSettings();
+    
 private:
     
     void GetBusRoutes(svg::Document& route_map, size_t max_color_number, std::map<std::string_view, transport_catalogue::TransportCatalogue::Bus*>& buses, SphereProjector& proj);

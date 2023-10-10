@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+
+message Weight {
+    string name = 1;
+    uint32 span_count = 2;
+    double time = 3;
+    bool is_bus = 4;
+}
+
+message Edge {
+    uint32 from = 1;
+    uint32 to = 2;
+    Weight weight = 3;
+}
+
+message Graph {
+    repeated Edge edge = 1;
+    uint32 vertex_count = 2;
+}

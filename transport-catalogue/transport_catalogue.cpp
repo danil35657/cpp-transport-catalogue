@@ -66,6 +66,10 @@ std::map<std::string_view, TransportCatalogue::Bus*> TransportCatalogue::GetAllB
     return std::map(busname_to_bus_.begin(), busname_to_bus_.end());
 }
 
+std::unordered_map<std::pair<TransportCatalogue::Stop*, TransportCatalogue::Stop*>, double, TransportCatalogue::PairStopPointHasher>& TransportCatalogue::GetAllDistances() {
+    return distances_;
+}
+
 }
 
 

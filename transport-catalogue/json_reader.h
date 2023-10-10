@@ -12,6 +12,7 @@
 #include "json_builder.h"
 #include "graph.h"
 #include "transport_router.h"
+#include "serialization.h"
 
 using namespace std::literals;
 
@@ -24,6 +25,10 @@ class JsonReader {
 public:
     
 void ReadInput(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router,  std::istream& in, std::ostream& out);
+
+void ReadInputBase(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router, std::istream& in);
+
+void ReadInputStat(transport_catalogue::TransportCatalogue& catalogue, map_renderer::MapRenderer& renderer, transport_router::TransportRouter& router, std::istream& in, std::ostream& out);
 
 private:
 

@@ -34,6 +34,10 @@ namespace transport_router {
         std::optional<graph::Router<RouteWeight>::RouteInfo> GetRoute(const std::string_view from, const std::string_view to);
 
         const RouteWeight& GetStep(size_t id);
+        
+        graph::DirectedWeightedGraph<RouteWeight>& GetGraph();
+        
+        void SetGraph(transport_catalogue::TransportCatalogue& catalogue, graph::DirectedWeightedGraph<RouteWeight>&& graph);
 
     private:
         std::unique_ptr<graph::Router<RouteWeight>> router_;
